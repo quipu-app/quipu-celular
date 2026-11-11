@@ -1,0 +1,58 @@
+﻿/* Sonidos en la pantalla grande del celular */
+
+.so-fila {
+  display: flex;
+  align-items: center;
+  gap: 1.5cqw;
+  margin-bottom: 1.2cqw;
+  padding: 0.8cqw 1.5cqw;
+  border-radius: 2cqw;
+  background: rgba(255, 255, 255, 0.55);
+}
+.so-fila.on { background: #FFFFFF; box-shadow: inset 0 0 0 0.5cqw var(--color-consola); }
+
+.so-alternar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5cqw;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #1B2A4E;
+  font-family: inherit;
+  text-align: left;
+}
+.so-alternar svg { flex: none; width: 6.5cqw; height: 6.5cqw; }
+.so-alternar b { flex: 1; min-width: 0; font-size: 3.4cqw; font-weight: 600; }
+.so-estado {
+  flex: none;
+  padding: 0.3cqw 1.2cqw;
+  border-radius: 999px;
+  background: rgba(27, 42, 78, 0.12);
+  font-size: 2.5cqw;
+  font-weight: 600;
+}
+.so-fila.on .so-estado { background: var(--color-consola); color: #F5F1E6; }
+
+.so-control { flex: none; display: flex; align-items: center; gap: 0.8cqw; }
+.so-mm {
+  width: 5.5cqw;
+  height: 5.5cqw;
+  padding: 0;
+  border: none;
+  border-radius: 1.4cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-family: inherit;
+  font-size: 4cqw;
+  line-height: 1;
+}
+.so-barras { display: flex; gap: 0.35cqw; }
+.so-barras i { width: 1.1cqw; height: 3.2cqw; border-radius: 0.3cqw; background: rgba(27, 42, 78, 0.18); }
+.so-barras i.llena { background: var(--color-consola); }
+
+.so-general { justify-content: space-between; background: transparent; padding-left: 0; }
+.so-general .tf-etiqueta { margin: 0; }
+.so-apagar { margin-left: auto; }
