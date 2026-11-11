@@ -1,0 +1,205 @@
+﻿/* Notas en la pantalla grande del celular */
+
+.no-raiz {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8cqw;
+}
+
+/* La barra de arriba: â€¹, tÃ­tulo y botones */
+.no-barra { display: flex; align-items: center; gap: 1.5cqw; flex: none; }
+.no-titulo { flex: 1; min-width: 0; margin: 0; font-size: 5.5cqw; font-weight: 600; }
+.no-campo-titulo {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: #1B2A4E;
+  font-family: inherit;
+  font-size: 4.6cqw;
+  font-weight: 600;
+  padding: 0;
+}
+.no-campo-titulo:focus { outline: none; }
+
+.no-tecla {
+  flex: none;
+  width: 8cqw;
+  height: 8cqw;
+  padding: 0;
+  border: none;
+  border-radius: 2cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-family: inherit;
+  font-size: 5cqw;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.no-tecla.clara { background: rgba(27, 42, 78, 0.12); color: #1B2A4E; font-size: 3.6cqw; }
+.no-tecla.clara.activa { background: #1B2A4E; color: #F5F1E6; }
+.no-tecla.chica { width: 6.5cqw; height: 6.5cqw; font-size: 4.5cqw; }
+.no-tecla svg { width: 4.2cqw; height: 4.2cqw; }
+
+/* PestaÃ±as y migas */
+.no-pestanas { display: flex; gap: 1.3cqw; flex: none; }
+.no-pestana {
+  border: none;
+  border-radius: 999px;
+  padding: 0.8cqw 2.6cqw;
+  background: rgba(27, 42, 78, 0.12);
+  color: #1B2A4E;
+  font-family: inherit;
+  font-size: 3.2cqw;
+}
+.no-pestana.activa { background: #1B2A4E; color: #F5F1E6; }
+.no-migas { display: flex; align-items: center; gap: 1.8cqw; flex: none; font-size: 3.6cqw; }
+.no-fila { flex: none; display: flex; }
+
+/* La lista de notas y carpetas */
+.no-lista { flex: 1; min-height: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: 1.3cqw; }
+.no-tarjeta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  width: 100%;
+  padding: 1.3cqw 2.3cqw;
+  border: none;
+  border-radius: 2cqw;
+  background: rgba(255, 255, 255, 0.7);
+  color: #1B2A4E;
+  font-family: inherit;
+  text-align: left;
+}
+.no-cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.no-cuerpo b { font-size: 3.4cqw; font-weight: 600; }
+.no-cuerpo small {
+  font-size: 2.9cqw;
+  color: #3D4A66;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.no-punto { flex: none; width: 2.2cqw; height: 2.2cqw; border-radius: 50%; }
+.no-estrella { color: #B8862A; font-size: 3.4cqw; }
+.no-ancho { width: 100%; flex: none; }
+
+/* El editor */
+.no-texto {
+  flex: 1;
+  min-height: 0;
+  padding: 1.8cqw 2.6cqw;
+  border-radius: 2cqw;
+  background: rgba(255, 255, 255, 0.7);
+  color: #1B2A4E;
+  font-size: 3.6cqw;
+  line-height: 1.45;
+  outline: none;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.no-texto:empty::before { content: attr(data-placeholder); color: #7A869F; }
+.no-texto img { max-width: 100%; border-radius: 1.5cqw; }
+.no-texto ul { margin: 0; padding-left: 4.5cqw; }
+.caja { cursor: pointer; user-select: none; font-size: 1.1em; margin-right: 0.8cqw; }
+.caja.hecha { color: #27AE60; }
+
+/* La tira de EdiciÃ³n (Aa): se desliza para el costado */
+.no-herramientas { flex: none; display: flex; gap: 1cqw; overflow-y: hidden; padding-bottom: 0.6cqw; }
+.no-herramientas button {
+  flex: none;
+  width: 7.5cqw;
+  height: 7cqw;
+  padding: 0;
+  border: none;
+  border-radius: 1.8cqw;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1B2A4E;
+  font-family: inherit;
+  font-size: 3.6cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.no-cursiva { font-family: Georgia, serif; } .no-herramientas { order: 5; padding-top: 0.6cqw; } #no-paleta { order: 6; }
+.no-rueda { width: 3.6cqw; height: 3.6cqw; border-radius: 50%;
+  background: conic-gradient(#E5484D, #F2C230, #27AE60, #2F80ED, #9B51E0, #E5484D); }
+.no-marcador { width: 3.6cqw; height: 1.6cqw; border-radius: 0.5cqw; background: #FFF176; border: 0.3cqw solid #B8862A; }
+.no-cuadradito { width: 2.8cqw; height: 2.8cqw; border: 0.4cqw solid #1B2A4E; border-radius: 0.7cqw; }
+
+/* Colores (de letra y de carpetas) */
+.no-colores { flex: none; display: flex; gap: 1.8cqw; flex-wrap: wrap; padding: 1cqw 0; }
+.no-colores button {
+  width: 6cqw;
+  height: 6cqw;
+  border: 0.5cqw solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  padding: 0;
+}
+.no-colores button.activa { outline: 0.6cqw solid #1B2A4E; }
+
+/* Los menÃºs â‹¯ y los paneles (mover a carpeta, QR) */
+.no-menu {
+  position: absolute;
+  right: 0;
+  top: 9.5cqw;
+  z-index: 3;
+  min-width: 52cqw;
+  padding: 1cqw 1.5cqw;
+  border-radius: 2.5cqw;
+  background: #FFFFFF;
+  box-shadow: 0 1cqw 3.5cqw rgba(14, 24, 52, 0.25);
+}
+.no-menu button {
+  display: block;
+  width: 100%;
+  padding: 1.5cqw 1.5cqw;
+  border: none;
+  background: transparent;
+  color: #1B2A4E;
+  font-family: inherit;
+  font-size: 3.5cqw;
+  text-align: left;
+}
+.no-menu button.no-peligro { color: #B3402F; }
+.no-menu button { display: flex; align-items: center; gap: 2.2cqw; }
+.no-icono { flex: none; display: flex; width: 4.2cqw; height: 4.2cqw; }
+.no-icono svg { width: 100%; height: 100%; }
+.no-panel {
+  position: absolute;
+  inset: 9.5cqw 0 0 0;
+  z-index: 2;
+  padding: 1.5cqw 2.5cqw;
+  border-radius: 2.5cqw;
+  background: #F5FBFD;
+  overflow-x: hidden;
+}
+.no-qr { display: flex; justify-content: center; }
+.no-qr svg { width: 34cqw; height: 34cqw; }
+
+/* "Nota borrada Â· Deshacer" */
+.no-aviso {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.3cqw 2.5cqw;
+  border-radius: 2cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-size: 3.4cqw;
+}
+.no-aviso .tf-boton { background: #F3B93C; color: #1B2A4E; }
+.no-aviso[hidden], .no-menu[hidden], .no-panel[hidden], .no-herramientas[hidden], .no-colores[hidden], .no-fila[hidden] { display: none; }
+

@@ -23,7 +23,7 @@ let mostrandoAviso = false;   // true mientras el cartel muestra una frase o avi
 // --- El tamaño de la consola: se calcula una vez y no cambia al abrir el teclado ---
 
 function medirAparato() {
-  if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+  if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.isContentEditable)) return;
   const ancho = Math.min(window.innerWidth * 0.96, window.innerHeight * 0.94 * 1408 / 3040);
   aparato.style.width = ancho + "px";
 }
@@ -138,7 +138,7 @@ document.querySelectorAll(".tecla").forEach((tecla) => {
 
 // Con el teclado abierto, la consola se pega arriba, así la pantalla grande queda a la vista.
 document.addEventListener("focusin", (e) => {
-  if (e.target.tagName === "INPUT") document.body.classList.add("escribiendo");
+  if ((e.target.tagName === "INPUT" || e.target.isContentEditable)) document.body.classList.add("escribiendo");
 });
 document.addEventListener("focusout", () => document.body.classList.remove("escribiendo"));
 window.addEventListener("resize", medirAparato);
@@ -146,3 +146,4 @@ window.addEventListener("resize", medirAparato);
 medirAparato();
 actualizarHora();
 setInterval(actualizarHora, 10000);
+

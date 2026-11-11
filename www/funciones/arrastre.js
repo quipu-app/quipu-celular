@@ -1,4 +1,4 @@
-﻿// Desplazar con el dedo (o con el mouse, en el emulador) cualquier zona "desplazable",
+// Desplazar con el dedo (o con el mouse, en el emulador) cualquier zona "desplazable",
 // en vertical y en horizontal. Si arrastrás, no cuenta como toque.
 
 (function () {
@@ -17,13 +17,14 @@
 
   document.addEventListener("pointerdown", (e) => {
     if (!e.target.closest(".desplazable")) return;
-    inicio = { x: e.clientX, y: e.clientY, objetivo: e.target, movido: false };
+    inicio = { x: e.clientX, y: e.clientY, objetivo: e.target, movido: false, momento: Date.now() };
   });
 
   document.addEventListener("pointermove", (e) => {
     if (!inicio) return;
     const dx = e.clientX - inicio.x;
     const dy = e.clientY - inicio.y;
+    if (!inicio.movido && Date.now() - inicio.momento > 350) { inicio = null; return; }   // dedo quieto: está seleccionando
     if (!inicio.movido && Math.hypot(dx, dy) < 6) return;   // un toque no es un arrastre
     inicio.movido = true;
     const zonaX = zonaPara(inicio.objetivo, "x");
