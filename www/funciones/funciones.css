@@ -1,0 +1,83 @@
+﻿/* Lo que comparten todas las funciones dentro de la pantalla grande (pensado para pantalla chica) */
+
+#funcion { padding: 3cqw 4cqw; gap: 2cqw; }
+
+#funcion header h1 {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#funcion-opciones {
+  width: 9cqw;
+  height: 9cqw;
+  padding: 0;
+  border: none;
+  border-radius: 2cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-family: inherit;
+  font-size: 6cqw;
+  line-height: 1;
+}
+
+/* Las zonas que se desplazan con el dedo (el movimiento lo hace arrastre.js) */
+.desplazable {
+  overflow: auto;
+  touch-action: none;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.desplazable::-webkit-scrollbar { width: 1cqw; height: 1cqw; }
+.desplazable::-webkit-scrollbar-thumb { background: rgba(27, 42, 78, 0.35); border-radius: 1cqw; }
+
+#funcion-contenido {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-size: 4cqw;
+  color: #1B2A4E;
+}
+
+.tf-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2cqw;
+}
+.tf-final { justify-content: flex-end; margin-top: 3cqw; }
+
+.tf-etiqueta { margin: 2.5cqw 0 1cqw; font-size: 3.4cqw; font-weight: 600; }
+.tf-mensaje { margin: 1cqw 0; font-size: 3.8cqw; }
+
+.tf-boton {
+  padding: 1.4cqw 3cqw;
+  border: none;
+  border-radius: 2cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-family: inherit;
+  font-size: 3.8cqw;
+}
+.tf-boton.secundario { background: rgba(27, 42, 78, 0.12); color: #1B2A4E; }
+.tf-boton.secundario.activa { background: #1B2A4E; color: #F5F1E6; }
+.tf-boton:active { opacity: 0.75; }
+.tf-ancho { display: block; width: 100%; margin-top: 1.2cqw; text-align: left; }
+
+.tf-campo {
+  flex: 1;
+  min-width: 0;
+  padding: 1.4cqw 2cqw;
+  border: 0.4cqw solid rgba(27, 42, 78, 0.3);
+  border-radius: 2cqw;
+  background: #FFFFFF;
+  color: #1B2A4E;
+  font-family: inherit;
+  font-size: 4cqw;
+}
+
+/* Con el teclado abierto, la consola se pega arriba */
+body.escribiendo { align-items: flex-start; }

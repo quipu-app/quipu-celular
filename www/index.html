@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Quipu</title>
   <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="funciones/funciones.css">
+  <link rel="stylesheet" href="funciones/tiempo.css">
 </head>
 <body>
   <main id="aparato" class="cerrado" data-modo="inicio">
@@ -20,8 +22,9 @@
         <header>
           <button id="volver" aria-label="Volver al inicio">‹</button>
           <h1 id="funcion-titulo"></h1>
+          <button id="funcion-opciones" aria-label="Opciones" hidden>⋯</button>
         </header>
-        <p id="funcion-texto">Muy pronto vas a poder usar esta función acá.</p>
+        <div id="funcion-contenido" class="desplazable"></div>
       </section>
     </div>
 
@@ -42,6 +45,8 @@
     <button id="tapa" aria-label="Abrir Quipu"><img id="imagen-cerrada" alt=""></button>
   </main>
   <script src="personaje.js"></script>
-  <script src="quipu.js"></script>
+  <script src="funciones/tiempo.js"></script>
+  <script src="funciones/arrastre.js"></script><script src="quipu.js"></script>
 </body>
 </html>
+

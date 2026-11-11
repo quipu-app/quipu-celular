@@ -1,0 +1,28 @@
+﻿/* Tiempo en la pantalla grande del celular */
+
+.ti-actual { display: flex; align-items: center; gap: 2.5cqw; }
+.ti-actual svg { flex: none; width: 11cqw; height: 11cqw; }
+.ti-temp { font-size: 7.5cqw; font-weight: 600; line-height: 1; }
+.ti-desc { margin-top: 0.6cqw; font-size: 3cqw; opacity: 0.8; }
+
+/* Los días: una tira que se desliza para los costados */
+.ti-dias {
+  display: flex;
+  gap: 1.5cqw;
+  margin-top: 2cqw;
+  padding-bottom: 1cqw;
+}
+.ti-dia {
+  flex: 0 0 15cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3cqw;
+  padding: 1cqw 0.5cqw;
+  border-radius: 2cqw;
+  background: rgba(27, 42, 78, 0.08);
+  font-size: 3cqw;
+}
+.ti-dia svg { width: 6.5cqw; height: 6.5cqw; }
+.ti-dia i { font-style: normal; opacity: 0.6; }
+.ti-lluvia { min-height: 1em; font-size: 2.6cqw; color: #2A7FC0; }
