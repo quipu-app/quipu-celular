@@ -1,0 +1,55 @@
+﻿/* Foco en la pantalla grande del celular */
+
+.fo-raiz {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.2cqw;
+}
+.fo-minutos { display: flex; justify-content: center; gap: 1.8cqw; }
+.fo-minutos .tf-boton:disabled { opacity: 0.45; }
+.fo-minutos .tf-boton.secundario.activa { background: var(--color-consola); }
+
+.fo-tiempo {
+  text-align: center;
+  font-size: 13cqw;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.5cqw;
+  font-variant-numeric: tabular-nums;
+}
+
+.fo-barra {
+  height: 1.6cqw;
+  border-radius: 1cqw;
+  background: rgba(27, 42, 78, 0.15);
+  overflow: hidden;
+}
+.fo-barra span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--color-consola);
+  transition: width 0.25s linear;
+}
+
+.fo-controles { display: grid; grid-template-columns: 2fr 1fr; gap: 1.8cqw; }
+.fo-principal { background: var(--color-consola); font-weight: 600; }
+
+/* Las luces de la consola */
+.luz {
+  position: absolute;
+  top: 6.4%;
+  width: 6.2%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;                 /* debajo de la tapa cuando está cerrada */
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle, var(--color-luz) 0%, transparent 70%);
+  box-shadow: 0 0 3cqw 1.2cqw var(--color-luz);
+  transition: opacity 0.15s;
+}
+.luz.prendida { opacity: 0.85; }

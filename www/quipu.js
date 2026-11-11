@@ -114,7 +114,7 @@ function terminarAviso() {
 }
 
 function actualizarHora() {
-  if (mostrandoAviso) return;
+  if (mostrandoAviso) return; const propio = window.textoPantallita && window.textoPantallita(); if (propio) { cartelTexto.textContent = propio; return; }
   const ahora = new Date();
   cartelTexto.textContent = ahora.toLocaleTimeString("es-AR", {
     hour: "2-digit",
@@ -145,5 +145,6 @@ window.addEventListener("resize", medirAparato);
 
 medirAparato();
 actualizarHora();
-setInterval(actualizarHora, 10000);
+setInterval(actualizarHora, 1000);
+
 
