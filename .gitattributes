@@ -1,0 +1,6 @@
+﻿# gradlew se ejecuta en Linux y Mac: siempre con saltos de línea de Linux
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Los scripts de Windows, con saltos de línea de Windows
+*.bat text eol=crlf

@@ -1,0 +1,14 @@
+﻿# Librerías de Node (se vuelven a instalar con npm install; pesan mucho)
+node_modules/
+
+# Configuración propia de los editores
+.idea/
+.vscode/
+
+# Registros y archivos temporales
+*.log
+npm-debug.log*
+
+# Archivos que crea Windows en las carpetas
+Thumbs.db
+desktop.ini
