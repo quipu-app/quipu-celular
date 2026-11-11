@@ -1,0 +1,241 @@
+﻿@font-face {
+  font-family: "Fredoka";
+  src: url("assets/fuentes/Fredoka.ttf");
+}
+
+:root {
+  --color-consola: #3A5A93;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0E1834;
+  font-family: "Fredoka", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* La consola: ocupa todo lo que puede sin deformarse */
+#aparato {
+  position: relative;
+  width: min(96vw, calc(94dvh * 1408 / 3040));
+  aspect-ratio: 1408 / 3040;
+  container-type: inline-size;
+}
+
+#imagen-abierta {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Las partes se ubican en % sobre el dibujo */
+#lente, #pantalla, #cerrar, #pantallita, .tecla { position: absolute; }
+
+#lente {
+  left: 17.6%; top: 3.4%; width: 13.8%; height: 6.3%;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+#lente.encendida {
+  background: radial-gradient(circle, rgba(220, 255, 140, 0.55), rgba(220, 255, 140, 0) 70%);
+  box-shadow: 0 0 6cqw 2cqw rgba(200, 255, 120, 0.45);
+}
+
+/* --- La pantalla grande --- */
+#pantalla {
+  left: 11.65%; top: 12.62%; width: 76.53%; height: 25.11%;
+  border-radius: 4.5cqw;
+  overflow: hidden;
+}
+
+#inicio, #funcion {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#funcion {
+  display: flex;
+  flex-direction: column;
+  gap: 3cqw;
+  padding: 4cqw 5cqw;
+  color: #1B2A4E;
+  opacity: 0;
+  transform: translateY(4%);
+  pointer-events: none;
+}
+
+[data-modo="funcion"] #funcion {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+[data-modo="funcion"] #inicio {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+#funcion header {
+  display: flex;
+  align-items: center;
+  gap: 3cqw;
+}
+#volver {
+  width: 9cqw;
+  height: 9cqw;
+  padding: 0;
+  border: none;
+  border-radius: 2cqw;
+  background: #1B2A4E;
+  color: #F5F1E6;
+  font-family: inherit;
+  font-size: 6cqw;
+  line-height: 1;
+}
+#funcion-titulo { margin: 0; font-size: 6.5cqw; font-weight: 600; }
+#funcion-texto { margin: 0; font-size: 4.4cqw; }
+
+#globo {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  max-width: 88%;
+  padding: 1.8cqw 3cqw;
+  border-radius: 3cqw;
+  background: #F5F1E6;
+  color: #0E1834;
+  font-size: 4.4cqw;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 6px);
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 2;
+}
+#globo.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* El personaje (el grande y el chiquito comparten esto) */
+.figura {
+  border: none;
+  padding: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+}
+#personaje {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* --- La pantallita --- */
+#pantallita {
+  left: 29.25%; top: 56.09%; width: 43.17%; height: 7.07%;
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  padding: 0 3cqw;
+  border-radius: 2cqw;
+  overflow: hidden;
+}
+
+#mini { flex: none; }
+[data-modo="inicio"] #mini { display: none; }
+[data-modo="funcion"] #mini { animation: saltar 0.45s ease-out; }
+
+@keyframes saltar {
+  0%   { transform: translateY(-120%) scale(0.6); opacity: 0; }
+  60%  { transform: translateY(8%) scale(1.05); opacity: 1; }
+  100% { transform: none; }
+}
+
+#cartel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+}
+[data-modo="funcion"] #cartel { text-align: left; }
+
+#cartel-texto {
+  display: inline-block;
+  color: #F5F1E6;
+  font-size: 10cqw;
+  font-weight: 600;
+  letter-spacing: 0.5cqw;
+}
+[data-modo="funcion"] #cartel-texto { font-size: 7cqw; }
+
+/* Las frases y avisos, en letra retro, como cartel luminoso */
+#cartel-texto.retro {
+  font-family: "Consolas", monospace;
+  font-size: 5.2cqw;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #CFE8FF;
+}
+#cartel-texto.corre {
+  animation: correr var(--duracion) linear forwards;
+}
+@keyframes correr {
+  from { transform: translateX(var(--desde)); }
+  to   { transform: translateX(var(--hasta)); }
+}
+
+/* --- Teclas y botones --- */
+.tecla {
+  width: 21.2%; height: 8.4%;
+  border: none;
+  border-radius: 3cqw;
+  padding: 0;
+  background: transparent;
+}
+.tecla:active { background: rgba(0, 0, 0, 0.18); }
+
+#t-foco    { left: 13.41%; top: 67.27%; }
+#t-notas   { left: 39.65%; top: 67.27%; }
+#t-agenda  { left: 65.63%; top: 67.27%; }
+#t-tiempo  { left: 13.41%; top: 78.2%; }
+#t-sonidos { left: 39.73%; top: 78.2%; }
+#t-ajustes { left: 65.55%; top: 78.2%; }
+
+#cerrar {
+  left: 12.6%; top: 41%; width: 10.4%; height: 4.8%;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+}
+#cerrar:active { background: rgba(0, 0, 0, 0.2); }
+
+/* --- La tapa: se pliega hacia arriba sobre la bisagra --- */
+#tapa {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  z-index: 10;
+  transform-origin: 50% 0;
+  transition: transform 0.45s ease-in, opacity 0.45s ease-in;
+}
+#tapa img { display: block; width: 100%; height: 100%; }
+
+#aparato.abierto #tapa {
+  transform: perspective(1200px) rotateX(85deg);
+  opacity: 0;
+  pointer-events: none;
+}

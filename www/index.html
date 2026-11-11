@@ -4,26 +4,44 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Quipu</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      background: #0E1834;
-      color: #F5F1E6;
-      font-family: system-ui, sans-serif;
-      text-align: center;
-    }
-    h1 { margin: 0; font-size: 2.4rem; color: #F3B93C; }
-    p { margin: 0; font-size: 1.1rem; }
-  </style>
+  <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-  <h1>Quipu</h1>
-  <p>¡Hola desde el celular!</p>
+  <main id="aparato" class="cerrado" data-modo="inicio">
+    <img id="imagen-abierta" alt="">
+    <div id="lente"></div>
+
+    <div id="pantalla">
+      <section id="inicio">
+        <div id="globo" aria-live="polite"></div>
+        <button id="personaje" class="figura" aria-label="Tocá al personaje"></button>
+      </section>
+      <section id="funcion">
+        <header>
+          <button id="volver" aria-label="Volver al inicio">‹</button>
+          <h1 id="funcion-titulo"></h1>
+        </header>
+        <p id="funcion-texto">Muy pronto vas a poder usar esta función acá.</p>
+      </section>
+    </div>
+
+    <button id="cerrar" aria-label="Cerrar Quipu"></button>
+
+    <div id="pantallita">
+      <button id="mini" class="figura" aria-label="Tocá al personaje"></button>
+      <div id="cartel" aria-live="polite"><span id="cartel-texto"></span></div>
+    </div>
+
+    <button class="tecla" id="t-foco" data-funcion="foco" aria-label="Foco"></button>
+    <button class="tecla" id="t-notas" data-funcion="notas" aria-label="Notas"></button>
+    <button class="tecla" id="t-agenda" data-funcion="agenda" aria-label="Agenda"></button>
+    <button class="tecla" id="t-tiempo" data-funcion="tiempo" aria-label="Tiempo"></button>
+    <button class="tecla" id="t-sonidos" data-funcion="sonidos" aria-label="Sonidos"></button>
+    <button class="tecla" id="t-ajustes" data-funcion="ajustes" aria-label="Ajustes"></button>
+
+    <button id="tapa" aria-label="Abrir Quipu"><img id="imagen-cerrada" alt=""></button>
+  </main>
+  <script src="personaje.js"></script>
+  <script src="quipu.js"></script>
 </body>
 </html>
