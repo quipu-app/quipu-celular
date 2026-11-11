@@ -1,4 +1,4 @@
-﻿// La consola de Quipu en el celular: abrir y cerrar, las teclas, las funciones y la pantallita.
+// La consola de Quipu en el celular: abrir y cerrar, las teclas, las funciones y la pantallita.
 
 const aparato = document.getElementById("aparato");
 const cartel = document.getElementById("cartel");
@@ -81,35 +81,57 @@ function volverAlInicio() {
 
 // --- La pantallita: la hora, las frases y los avisos ---
 
-// Muestra un texto en el cartel. Si no entra, lo hace correr como cartel luminoso.
-// Devuelve cuánto tiempo (en milisegundos) va a estar a la vista.
+// Los mensajes se muestran de a uno, en fila. Si un mensaje no entra, primero se queda quieto
+// un momento, después corre despacio hasta el final y se queda quieto otro momento.
+const colaAvisos = [];
+let avisoEnCurso = false;
+
 function anunciar(texto) {
+  if (!colaAvisos.includes(texto)) colaAvisos.push(texto);
+  if (!avisoEnCurso) siguienteAviso();
+  return 2800;
+}
+
+function siguienteAviso() {
+  const texto = colaAvisos.shift();
+  if (texto === undefined) {
+    avisoEnCurso = false;
+    mostrandoAviso = false;
+    cartelTexto.className = "";
+    actualizarHora();
+    return;
+  }
+  avisoEnCurso = true;
   mostrandoAviso = true;
   cartelTexto.className = "retro";
+  cartelTexto.style.animationDelay = "";
   cartelTexto.textContent = texto;
 
   let duracion = 2800;
   const anchoCartel = cartel.clientWidth;
   const anchoTexto = cartelTexto.scrollWidth;
   if (anchoTexto > anchoCartel) {
-    const recorrido = anchoCartel + anchoTexto;
-    duracion = (recorrido / 70) * 1000;              // 70 píxeles por segundo
-    cartelTexto.style.setProperty("--desde", `${anchoCartel}px`);
-    cartelTexto.style.setProperty("--hasta", `${-anchoTexto}px`);
-    cartelTexto.style.setProperty("--duracion", `${duracion}ms`);
-    void cartelTexto.offsetWidth;                    // reinicia la animación
+    const recorrido = anchoTexto - anchoCartel;
+    const tiempoCorriendo = (recorrido / 45) * 1000;     // 45 píxeles por segundo: se lee tranquilo
+    duracion = 1000 + tiempoCorriendo + 1200;             // quieto, corre, quieto
+    cartelTexto.style.setProperty("--desde", "0px");
+    cartelTexto.style.setProperty("--hasta", `${-recorrido}px`);
+    cartelTexto.style.setProperty("--duracion", `${tiempoCorriendo}ms`);
+    cartelTexto.style.animationDelay = "1s";
+    void cartelTexto.offsetWidth;                        // reinicia la animación
     cartelTexto.classList.add("corre");
   }
-
   clearTimeout(anunciar.reloj);
-  anunciar.reloj = setTimeout(terminarAviso, duracion + 300);
-  return duracion;
+  anunciar.reloj = setTimeout(siguienteAviso, duracion);
 }
 
 function terminarAviso() {
   clearTimeout(anunciar.reloj);
+  colaAvisos.length = 0;
+  avisoEnCurso = false;
   mostrandoAviso = false;
   cartelTexto.className = "";
+  cartelTexto.style.animationDelay = "";
   actualizarHora();
 }
 

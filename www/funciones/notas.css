@@ -1,4 +1,4 @@
-﻿/* Notas en la pantalla grande del celular */
+/* Notas en la pantalla grande del celular */
 
 .no-raiz {
   position: relative;
@@ -8,7 +8,7 @@
   gap: 1.8cqw;
 }
 
-/* La barra de arriba: â€¹, tÃ­tulo y botones */
+/* La barra de arriba: ‹, título y botones */
 .no-barra { display: flex; align-items: center; gap: 1.5cqw; flex: none; }
 .no-titulo { flex: 1; min-width: 0; margin: 0; font-size: 5.5cqw; font-weight: 600; }
 .no-campo-titulo {
@@ -46,7 +46,7 @@
 .no-tecla.chica { width: 6.5cqw; height: 6.5cqw; font-size: 4.5cqw; }
 .no-tecla svg { width: 4.2cqw; height: 4.2cqw; }
 
-/* PestaÃ±as y migas */
+/* Pestañas y migas */
 .no-pestanas { display: flex; gap: 1.3cqw; flex: none; }
 .no-pestana {
   border: none;
@@ -111,7 +111,7 @@
 .caja { cursor: pointer; user-select: none; font-size: 1.1em; margin-right: 0.8cqw; }
 .caja.hecha { color: #27AE60; }
 
-/* La tira de EdiciÃ³n (Aa): se desliza para el costado */
+/* La tira de Edición (Aa): se desliza para el costado */
 .no-herramientas { flex: none; display: flex; gap: 1cqw; overflow-y: hidden; padding-bottom: 0.6cqw; }
 .no-herramientas button {
   flex: none;
@@ -145,7 +145,7 @@
 }
 .no-colores button.activa { outline: 0.6cqw solid #1B2A4E; }
 
-/* Los menÃºs â‹¯ y los paneles (mover a carpeta, QR) */
+/* Los menús ⋯ y los paneles (mover a carpeta, QR) */
 .no-menu {
   position: absolute;
   right: 0;
@@ -184,7 +184,7 @@
 .no-qr { display: flex; justify-content: center; }
 .no-qr svg { width: 34cqw; height: 34cqw; }
 
-/* "Nota borrada Â· Deshacer" */
+/* "Nota borrada · Deshacer" */
 .no-aviso {
   position: absolute;
   left: 0;

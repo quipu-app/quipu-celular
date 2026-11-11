@@ -1,6 +1,6 @@
 ﻿// El personaje de Quipu en el celular: grande en la pantalla grande o chiquito en la pantallita.
 
-const PERSONAJE = "moreira";
+const PERSONAJE = localStorage.getItem("quipu.personaje") || "moreira";
 const CARPETA = `assets/personajes/${PERSONAJE}/`;
 
 const figura = document.getElementById("personaje");    // el grande
@@ -15,8 +15,8 @@ let ocupado = false;       // true mientras hace una acción, para no pisarla
 let cuadroActual = "mira_frente";
 
 // Las imágenes de la consola de este personaje
-document.getElementById("imagen-abierta").src = `${CARPETA}celular/abierta.png`;
-document.getElementById("imagen-cerrada").src = `${CARPETA}celular/cerrada.png`;
+document.getElementById("imagen-abierta").src = `assets/consola-celular/abierta.png`;
+document.getElementById("imagen-cerrada").src = `assets/consola-celular/cerrada.png`;
 
 async function cargarPersonaje() {
   const respuesta = await fetch(CARPETA + "datos.json");
@@ -132,3 +132,5 @@ function programarAccionSola() {
 }
 
 cargarPersonaje();
+
+

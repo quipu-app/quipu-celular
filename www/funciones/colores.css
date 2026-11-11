@@ -1,0 +1,22 @@
+﻿/* Los botones de adentro toman el color del personaje; la consola queda siempre azul.
+   Se usa una versión más oscura del color, para que el texto claro siempre se lea bien. */
+:root { --color-botones: color-mix(in srgb, var(--color-consola) 70%, #000000); }
+
+.tf-boton:not(.secundario),
+.tf-boton.secundario.activa,
+.no-tecla:not(.clara),
+.no-tecla.clara.activa,
+#volver,
+#funcion-opciones,
+.so-mm,
+.fo-principal,
+.aj-elegir { background: var(--color-botones); }
+
+.fo-barra span,
+.so-barras i.llena,
+.aj-puntos i.activo,
+.ag-dia.elegido { background: var(--color-botones); }
+
+.so-fila.on { box-shadow: inset 0 0 0 0.5cqw var(--color-botones); }
+.so-fila.on .so-estado { background: var(--color-botones); }
+.aj-carta { box-shadow: inset 0 0 0 0.6cqw var(--color-botones); }
