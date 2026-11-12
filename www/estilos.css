@@ -239,3 +239,14 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
+/* --- La consola queda fija: la página nunca se desplaza (solo las zonas "desplazable" de adentro) --- */
+html { overflow: hidden; overscroll-behavior: none; }
+body { position: fixed; inset: 0; overscroll-behavior: none; }
+
+/* La tapa plegada se ve más ancha por la perspectiva: al terminar de abrir, se esconde del todo */
+#tapa { transition: transform 0.45s ease-in, opacity 0.45s ease-in, visibility 0s; }
+#aparato.abierto #tapa {
+  visibility: hidden;
+  transition: transform 0.45s ease-in, opacity 0.45s ease-in, visibility 0s linear 0.45s;
+}

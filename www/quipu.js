@@ -169,4 +169,10 @@ medirAparato();
 actualizarHora();
 setInterval(actualizarHora, 1000);
 
-
+// --- Si algo corrió la pantalla (por ejemplo el teclado), vuelve a su lugar ---
+const escribiendoAhora = () => document.activeElement &&
+  (document.activeElement.tagName === "INPUT" || document.activeElement.isContentEditable);
+window.addEventListener("scroll", () => {
+  if ((window.scrollX || window.scrollY) && !escribiendoAhora()) window.scrollTo(0, 0);
+});
+document.addEventListener("focusout", () => setTimeout(() => window.scrollTo(0, 0), 60));

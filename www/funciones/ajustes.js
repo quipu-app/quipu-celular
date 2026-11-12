@@ -7,7 +7,8 @@ window.MODULOS = window.MODULOS || {};
   const PERSONAJES = ["anki", "compa", "luna", "moreira", "pachamama", "remedios"];   // Eric presenta: no se elige
   const TIPOS_TECLA = [["clic", "Clic"], ["suave", "Suave"], ["retro", "Retro"], ["ninguno", "Sin sonido"]];
   const ARCHIVOS_TECLA = { clic: "tecla_clic_v10", suave: "tecla_suave_v10", retro: "tecla_retro_v9" };
-  const VERSION = "Quipu para celular · versión de prueba";
+  window.QUIPU_VERSION = "1.1.0";   // subirla en cada versión nueva (y versionName en android/app/build.gradle)
+  const VERSION = "Quipu para celular · versión " + window.QUIPU_VERSION;
 
   const escapar = (t) => String(t ?? "").replace(/[&<>"]/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -95,6 +96,14 @@ window.MODULOS = window.MODULOS || {};
   // 1. Escaneo del personaje actual. 2. Lluvia de código: "Creando…". 3. El nuevo aparece de a píxeles.
   let enRitual = false;
   const esperar = (ms) => new Promise((listo) => setTimeout(listo, ms));
+
+  // Los sonidos del ritual, los mismos de la compu (con el volumen de los avisos)
+  function efecto(nombre) {
+    if (!ajustes.volumen_avisos) return;
+    const sonido = new Audio(`assets/sonidos/${nombre}.wav`);
+    sonido.volume = ajustes.volumen_avisos / 10;
+    sonido.play().catch(() => {});
+  }
   const COLOR_PANTALLA = "#C2E6F2";
 
   function cargarImagen(ruta) {
@@ -153,11 +162,15 @@ window.MODULOS = window.MODULOS || {};
 
     // 1. Escaneo
     anunciar("Escaneando…");
+    efecto("escaneo");
     capa.innerHTML = '<div class="ritual-escaner"></div>';
     await esperar(1900);
 
     // 2. Lluvia de código: el personaje se va y se arma el nuevo
+    efecto("captura");
+    await esperar(400);
     anunciar("Creando…");
+    efecto("codigo");
     figura.style.opacity = "0";
     capa.innerHTML = lluviaDeCodigo();
     await Promise.all([cambiarPersonaje(nuevo), esperar(1900)]);
@@ -172,6 +185,7 @@ window.MODULOS = window.MODULOS || {};
     ponerLuces([false, false, true], "ajustes");
     setTimeout(() => ponerLuces(null, "ajustes"), 1200);
     anunciar("¡Listo!");
+    efecto("listo");
     hacer("saluda");
     enRitual = false;
   }
@@ -224,8 +238,8 @@ window.MODULOS = window.MODULOS || {};
       <p class="tf-mensaje">${VERSION}</p>`;
 
     const $ = (id) => document.getElementById(id);
-    $("aj-antes").onclick = () => { indice = (indice - 1 + cartas.length) % cartas.length; dibujar(); };
-    $("aj-despues").onclick = () => { indice = (indice + 1) % cartas.length; dibujar(); };
+    $("aj-antes").onclick = () => { indice = (indice - 1 + cartas.length) % cartas.length; efecto("carta"); dibujar(); };
+    $("aj-despues").onclick = () => { indice = (indice + 1) % cartas.length; efecto("carta"); dibujar(); };
     $("aj-elegir").onclick = () => elegir(c.id);
     $("aj-guardar-nombre").onclick = () => {
       ajustes.nombre = $("aj-nombre").value.trim();

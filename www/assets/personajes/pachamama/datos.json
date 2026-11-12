@@ -36,7 +36,7 @@
 },
   "hojas": {
     "cuerpo": {
-      "sprite": "cuerpo.png",
+      "sprite": "cuerpo.webp",
       "escala": 0.48,
       "grilla": { "columnas": 4, "cuadro_ancho": 300, "cuadro_alto": 640 },
       "cara": { "x": 150, "y": 130 },
@@ -52,7 +52,7 @@
       "acciones_solo": ["saluda", "sonrie"]
     },
     "medio": {
-      "sprite": "medio.png",
+      "sprite": "medio.webp",
       "escala": 0.5,
       "ajuste_asomarse": -20,
       "grilla": { "columnas": 6, "cuadro_ancho": 520, "cuadro_alto": 470 },
