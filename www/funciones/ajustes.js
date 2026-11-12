@@ -218,6 +218,8 @@ window.MODULOS = window.MODULOS || {};
         ${TIPOS_TECLA.map(([t, nombre]) => `<button class="tf-boton secundario ${ajustes.sonido_teclas === t ? "activa" : ""}" data-tipo="${t}">${nombre}</button>`).join("")}
       </div>
 
+      ${window.SINCRO ? SINCRO.html() : ""}
+
       <p class="tf-etiqueta">Versión</p>
       <p class="tf-mensaje">${VERSION}</p>`;
 
@@ -227,6 +229,7 @@ window.MODULOS = window.MODULOS || {};
     $("aj-elegir").onclick = () => elegir(c.id);
     $("aj-guardar-nombre").onclick = () => {
       ajustes.nombre = $("aj-nombre").value.trim();
+      ajustes.nombre_cambiado = Date.now() / 1000;   // para saber qué nombre gana entre aparatos
       guardar();
       $("aj-nombre").blur();
       const frase = datos && datos.frases.ajustes_nombre;
@@ -246,11 +249,13 @@ window.MODULOS = window.MODULOS || {};
     contenedor.querySelectorAll("[data-tipo]").forEach((b) => {
       b.onclick = () => { ajustes.sonido_teclas = b.dataset.tipo; guardar(); sonarTecla(); dibujar(); };
     });
+    if (window.SINCRO) SINCRO.conectar(dibujar);
   }
 
   MODULOS.ajustes = {
     async abrir(lugar) {
       contenedor = lugar;
+      try { ajustes = { ...ajustes, ...JSON.parse(localStorage.getItem(CLAVE)) }; } catch (error) { /* sigue igual */ }   // el nombre pudo llegar de la compu
       contenedor.innerHTML = '<p class="tf-mensaje">Cargando…</p>';
       await cargarCartas();
       dibujar();

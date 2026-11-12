@@ -359,6 +359,7 @@ window.MODULOS = window.MODULOS || {};
   setTimeout(() => { revisar(); programarAvisos(); }, 3000);
 
   MODULOS.agenda = {
+    recargar() { cargar(); },          // lo usa la sincronización cuando llegan eventos de la compu
     abrir(lugar) {
       contenedor = lugar;
       cargar();

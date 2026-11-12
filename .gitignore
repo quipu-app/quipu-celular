@@ -12,3 +12,4 @@ npm-debug.log*
 # Archivos que crea Windows en las carpetas
 Thumbs.db
 desktop.ini
+respaldos/
