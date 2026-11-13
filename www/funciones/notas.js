@@ -129,6 +129,8 @@ window.MODULOS = window.MODULOS || {};
         <div class="no-lista desplazable" id="no-lista"></div>
         <div class="no-menu" id="no-menu" hidden>
           <button data-accion="carpeta-nueva">${conIcono("nueva", "Nueva carpeta")}</button>
+          ${abiertaCarpeta ? `<button data-accion="carpeta-editar">${conIcono("carpeta", "Editar esta carpeta")}</button>` : ""}
+          ${abiertaCarpeta ? `<button data-accion="carpeta-borrar" class="no-peligro">${conIcono("borrar", "Borrar esta carpeta")}</button>` : ""}
         </div>
         <div class="no-aviso" id="no-aviso" hidden>
           <span>Nota borrada</span><button class="tf-boton" id="no-deshacer">Deshacer</button>
@@ -148,6 +150,10 @@ window.MODULOS = window.MODULOS || {};
     $("no-buscar").oninput = () => { buscando = $("no-buscar").value; dibujarLista(); };
     $("no-mas").onclick = () => { $("no-menu").hidden = !$("no-menu").hidden; };
     contenedor.querySelector('[data-accion="carpeta-nueva"]').onclick = carpetaNueva;
+    const botonBorrarCarpeta = contenedor.querySelector('[data-accion="carpeta-borrar"]');
+    if (botonBorrarCarpeta) botonBorrarCarpeta.onclick = carpetaBorrar;
+    const botonEditarCarpeta = contenedor.querySelector('[data-accion="carpeta-editar"]');
+    if (botonEditarCarpeta) botonEditarCarpeta.onclick = carpetaEditar;
     contenedor.querySelectorAll(".no-pestana").forEach((p) => {
       p.onclick = () => { vista = p.dataset.vista; mostrarLista(); };
     });
@@ -227,6 +233,62 @@ window.MODULOS = window.MODULOS || {};
       anunciar("Carpeta creada");
     };
     document.getElementById("no-nombre-carpeta").focus();
+  }
+
+  function carpetaEditar() {
+    const carpeta = carpetaPorId(carpetaAbierta);
+    if (!carpeta) return;
+    let color = carpeta.color;
+    const lista = document.getElementById("no-lista");
+    document.getElementById("no-menu").hidden = true;
+    lista.innerHTML = `
+      <p class="tf-etiqueta">Editar carpeta</p>
+      <input id="no-nombre-carpeta" class="tf-campo no-ancho" placeholder="Nombre de la carpeta" value="${escapar(carpeta.nombre)}">
+      <div class="no-colores" id="no-colores">
+        ${COLORES_CARPETA.map((c) => `<button data-color="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join("")}
+      </div>
+      <div class="tf-fila tf-final">
+        <button class="tf-boton secundario" id="no-cancelar-carpeta">Cancelar</button>
+        <button class="tf-boton" id="no-guardar-carpeta">Guardar</button>
+      </div>`;
+    const marcar = () => lista.querySelectorAll("[data-color]").forEach((b) => b.classList.toggle("activa", b.dataset.color === color));
+    lista.querySelectorAll("[data-color]").forEach((b) => { b.onclick = () => { color = b.dataset.color; marcar(); }; });
+    marcar();
+    document.getElementById("no-cancelar-carpeta").onclick = dibujarLista;
+    document.getElementById("no-guardar-carpeta").onclick = () => {
+      const nombre = document.getElementById("no-nombre-carpeta").value.trim();
+      if (!nombre) return;
+      Object.assign(carpeta, { nombre, color, modificada: ahora() });
+      guardarTodo();
+      mostrarLista();
+      anunciar("Carpeta guardada");
+    };
+  }
+
+  function carpetaBorrar() {
+    const carpeta = carpetaPorId(carpetaAbierta);
+    if (!carpeta) return;
+    const adentro = base.notas.filter((n) => !n.borrada && n.carpeta === carpeta.uid);
+    const lista = document.getElementById("no-lista");
+    document.getElementById("no-menu").hidden = true;
+    lista.innerHTML = `
+      <p class="tf-etiqueta">Borrar carpeta</p>
+      <p class="tf-mensaje">¿Borrás la carpeta <b>${escapar(carpeta.nombre)}</b>?
+        ${adentro.length === 1 ? "Su nota no se borra: queda suelta." : adentro.length ? `Sus ${adentro.length} notas no se borran: quedan sueltas.` : "Está vacía."}</p>
+      <div class="tf-fila tf-final">
+        <button class="tf-boton secundario" id="no-cancelar-borrar">Cancelar</button>
+        <button class="tf-boton" id="no-confirmar-borrar">Borrar</button>
+      </div>`;
+    document.getElementById("no-cancelar-borrar").onclick = dibujarLista;
+    document.getElementById("no-confirmar-borrar").onclick = () => {
+      Object.assign(carpeta, { borrada: 1, modificada: ahora() });
+      adentro.forEach((n) => Object.assign(n, { carpeta: null, modificada: ahora() }));
+      guardarTodo();
+      carpetaAbierta = null;
+      vista = "carpetas";
+      mostrarLista();
+      anunciar("Carpeta borrada");
+    };
   }
 
   // ================= EL EDITOR =================
