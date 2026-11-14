@@ -74,3 +74,23 @@
 @keyframes desaparecer { to { opacity: 0; } }
 #personaje { transition: opacity 0.3s; }
 
+/* Tarjeta "Nueva versión disponible", debajo de la versión */
+.aj-nueva {
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  width: 100%;
+  margin-top: 1.5cqw;
+  padding: 2cqw 3cqw;
+  border: none;
+  border-radius: 2.5cqw;
+  background: #F3B93C;
+  color: #1B2A4E;
+  font-family: inherit;
+  text-align: left;
+}
+.aj-nueva:active { opacity: 0.75; }
+.aj-nueva-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5cqw; }
+.aj-nueva-texto b { font-size: 3.6cqw; font-weight: 600; }
+.aj-nueva-texto small { font-size: 3.2cqw; }
+.aj-nueva-flecha { font-size: 6cqw; line-height: 1; }

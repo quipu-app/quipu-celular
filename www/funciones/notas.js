@@ -196,6 +196,7 @@ window.MODULOS = window.MODULOS || {};
       return `<button class="no-tarjeta" data-nota="${n.uid}">
         <span class="no-punto" style="background:${c ? c.color : "#8A94AB"}"></span>
         <span class="no-cuerpo"><b>${escapar(n.titulo || "Sin título")}</b><small>${escapar(resumen)}</small></span>
+        ${n.codigo ? `<span class="no-icono no-marca-compartida" aria-label="Compartida">${ICONO.colaborar}</span>` : ""}
         ${n.fijada ? '<span class="no-estrella">★</span>' : ""}
       </button>`;
     }).join("") : `<p class="tf-mensaje">${buscando ? "No encontré notas con eso." : "Todavía no hay notas. Tocá + para escribir la primera."}</p>`;
@@ -304,6 +305,7 @@ window.MODULOS = window.MODULOS || {};
           ${boton("no-aa", "Aa", "Edición", "clara")}
           ${boton("no-mas", "⋯", "Opciones")}
         </div>
+        <div class="no-compartida" id="no-compartida" hidden></div>
         <div class="no-herramientas desplazable" id="no-herramientas" hidden>
           <button data-cmd="bold" aria-label="Negrita"><b>B</b></button>
           <button data-cmd="italic" aria-label="Cursiva"><i class="no-cursiva">I</i></button>
@@ -391,6 +393,8 @@ window.MODULOS = window.MODULOS || {};
     });
 
     if (!nota) setTimeout(() => $("no-titulo").focus(), 300);
+    dibujarLineaCompartida();
+    if (nota && nota.codigo) setTimeout(revisarNube, 300);
   }
 
   function comando(cmd, valor = null) {
@@ -429,11 +433,13 @@ window.MODULOS = window.MODULOS || {};
 
   // --- Guardado automático ---
   function programarGuardado() {
+    sinGuardar = true;
     clearTimeout(relojGuardar);
     relojGuardar = setTimeout(guardarAhora, 900);
   }
 
   function guardarAhora() {
+    sinGuardar = false;
     clearTimeout(relojGuardar);
     const tituloEl = document.getElementById("no-titulo");
     const textoEl = document.getElementById("no-texto");
@@ -453,6 +459,7 @@ window.MODULOS = window.MODULOS || {};
     Object.assign(nota, { titulo, html, texto, modificada: ahora() });
     guardarTodo();
     anunciar("Guardado");
+    subirCompartida(nota);
   }
 
   // --- Lo que hay en ⋯ ---
@@ -507,7 +514,7 @@ window.MODULOS = window.MODULOS || {};
     } else if (nombre === "compartir") {
       compartir();
     } else if (nombre === "colaborar") {
-      anunciar("Colaborar llega con la sincronización");
+      abrirColaborar();
     } else if (nombre === "borrar") {
       if (nota) {
         ultimaBorrada = { ...nota };
@@ -518,6 +525,217 @@ window.MODULOS = window.MODULOS || {};
       mostrarLista();
     }
   }
+
+  // --- Colaborar con un código (la misma nube que la compu) ---
+  const conGuion = (c) => c.slice(0, 4) + "-" + c.slice(4);
+  const mensajeColab = (t) => { const m = document.getElementById("no-colab-mensaje"); if (m) m.textContent = t; };
+
+  // Limpia el HTML que llega de la nube: deja el formato y las fotos, saca todo lo que pueda ejecutarse.
+  function limpiarHtml(html) {
+    const doc = new DOMParser().parseFromString(`<div>${html || ""}</div>`, "text/html");
+    doc.querySelectorAll("script, style, iframe, object, embed, link, meta, form, input, button, textarea, select")
+      .forEach((e) => e.remove());
+    doc.querySelectorAll("*").forEach((e) => {
+      [...e.attributes].forEach((a) => {
+        const nombre = a.name.toLowerCase();
+        const valor = a.value.trim().toLowerCase();
+        if (nombre.startsWith("on")) e.removeAttribute(a.name);
+        else if (nombre === "src" && !valor.startsWith("data:image/")) e.removeAttribute(a.name);
+        else if (nombre === "href" && !valor.startsWith("http")) e.removeAttribute(a.name);
+      });
+    });
+    return doc.body.firstChild.innerHTML;
+  }
+
+  function abrirColaborar() {
+    const panel = document.getElementById("no-panel");
+    const pie = `<p class="tf-mensaje" id="no-colab-mensaje"></p>
+      <div class="tf-fila tf-final"><button class="tf-boton secundario" id="no-cerrar-panel">Volver a la nota</button></div>`;
+    if (nota && nota.codigo) {
+      panel.innerHTML = `
+        <p class="tf-etiqueta">Nota compartida</p>
+        <p class="no-codigo">${conGuion(nota.codigo)}</p>
+        ${ultimoCambio() ? `<p class="tf-mensaje">Último cambio: ${ultimoCambio()}</p>` : ""}
+        ${NUBE.miNombre() ? "" : `<p class="tf-mensaje">Poné tu nombre en Ajustes para que los demás vean quién hizo cada cambio.</p>`}
+        <p class="tf-mensaje">Quien tenga este código puede verla y escribir en ella. Los cambios se comparten solos.</p>
+        <div class="tf-fila">
+          <button class="tf-boton" id="no-mandar-codigo">Mandar código</button>
+          <button class="tf-boton secundario" id="no-copiar-codigo">Copiar</button>
+        </div>` + pie;
+    } else {
+      panel.innerHTML = `
+        <p class="tf-etiqueta">Compartir esta nota</p>
+        <button class="tf-boton" id="no-generar">Generar código</button>
+        <p class="tf-etiqueta">¿Te pasaron un código?</p>
+        <div class="tf-fila">
+          <input id="no-entrada" class="tf-campo" maxlength="9" placeholder="XXXX-XXXX" autocapitalize="characters" autocomplete="off">
+          <button class="tf-boton" id="no-unirme">Unirme</button>
+        </div>` + pie;
+    }
+    panel.hidden = false;
+    const $ = (id) => document.getElementById(id);
+    $("no-cerrar-panel").onclick = () => { panel.hidden = true; };
+    if ($("no-generar")) $("no-generar").onclick = generarCodigo;
+    if ($("no-unirme")) $("no-unirme").onclick = unirme;
+    if ($("no-entrada")) $("no-entrada").onkeydown = (e) => { if (e.key === "Enter") unirme(); };
+    if ($("no-mandar-codigo")) $("no-mandar-codigo").onclick = mandarCodigo;
+    if ($("no-copiar-codigo")) $("no-copiar-codigo").onclick = copiarCodigo;
+  }
+
+  async function generarCodigo() {
+    guardarAhora();
+    if (!nota) return mensajeColab("Escribí algo antes de compartir");
+    const boton = document.getElementById("no-generar");
+    boton.disabled = true;
+    mensajeColab("Generando…");
+    anunciar("Compartiendo");
+    try {
+      const codigo = await NUBE.codigoLibre();
+      const cambiado = await NUBE.subir(codigo, nota.titulo, nota.html, nota.texto);
+      Object.assign(nota, { codigo, remoto: cambiado, ultimoMio: true, modificada: ahora() });
+      guardarTodo();
+      anunciar("¡Lista para compartir!");
+      abrirColaborar();
+    } catch (error) {
+      boton.disabled = false;
+      mensajeColab(NUBE.mensaje(error));
+    }
+  }
+
+  async function unirme() {
+    const codigo = NUBE.normalizar(document.getElementById("no-entrada").value);
+    if (codigo.length !== 8) return mensajeColab("El código tiene 8 letras y números");
+    const existente = base.notas.find((n) => n.codigo === codigo && !n.borrada);
+    if (existente) return abrirNota(existente.uid);
+    mensajeColab("Buscando…");
+    anunciar("Buscando");
+    try {
+      const d = await NUBE.bajar(codigo);
+      if (!d) return mensajeColab("No encontré ninguna nota con ese código");
+      const nueva = {
+        uid: nuevoId(), carpeta: null, titulo: d.titulo || "", html: limpiarHtml(d.html), texto: d.texto || "",
+        fijada: 0, borrada: 0, creada: ahora(), modificada: ahora(), orden: 0,
+        codigo, remoto: d.cambiado, ultimoNombre: d.nombre || "", ultimoMio: false,
+      };
+      base.notas.push(nueva);
+      guardarTodo();
+      anunciar("¡Ya están conectados!");
+      abrirNota(nueva.uid);
+    } catch (error) {
+      mensajeColab(NUBE.mensaje(error));
+    }
+  }
+
+  async function mandarCodigo() {
+    const texto = `Te comparto una nota de Quipu. Para abrirla, andá a Notas → Colaborar y poné el código ${conGuion(nota.codigo)}`;
+    const Share = window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Share;
+    try {
+      if (Share) return await Share.share({ title: "Nota compartida de Quipu", text: texto });
+    } catch (error) {
+      if (String(error).includes("cancel")) return;
+    }
+    copiarCodigo();
+  }
+
+  async function copiarCodigo() {
+    try {
+      await navigator.clipboard.writeText(conGuion(nota.codigo));
+      mensajeColab("¡Copiado!");
+    } catch (error) {
+      mensajeColab("No pude copiarlo");
+    }
+  }
+
+  // Cada vez que se guarda una nota compartida, se sube a la nube.
+  async function subirCompartida(n) {
+    if (!n || !n.codigo) return;
+    subiendo++;
+    try {
+      n.remoto = await NUBE.subir(n.codigo, n.titulo, n.html, n.texto);
+      n.ultimoMio = true;
+      guardarTodo();
+      if (n === nota) dibujarLineaCompartida();
+    } catch (error) {
+      anunciar("No pude subir la nota compartida: " + NUBE.mensaje(error));
+    } finally {
+      subiendo--;
+    }
+  }
+
+  // ¿Hay algo escrito que todavía no se guardó? ¿Se está subiendo algo ahora mismo?
+  let sinGuardar = false;
+  let subiendo = 0;
+  let revisando = false;
+
+  // "Eli, hoy 16:09": quién hizo el último cambio de la nota compartida y cuándo.
+  function ultimoCambio() {
+    if (!nota || !nota.codigo || !nota.remoto) return "";
+    const f = new Date(nota.remoto * 1000);
+    const hora = f.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+    const dia = new Date().toDateString() === f.toDateString() ? "hoy" : f.toLocaleDateString("es-AR");
+    const quien = nota.ultimoMio ? "vos" : (nota.ultimoNombre || "otra persona");
+    return `${escapar(quien)}, ${dia} ${hora}`;
+  }
+
+  // La línea fija arriba de una nota compartida: el ícono, el código y el último cambio.
+  function dibujarLineaCompartida() {
+    const linea = document.getElementById("no-compartida");
+    if (!linea) return;
+    if (!nota || !nota.codigo) { linea.hidden = true; return; }
+    const ultimo = ultimoCambio();
+    linea.innerHTML = `<span class="no-icono" aria-hidden="true">${ICONO.colaborar}</span>` +
+      `<span class="no-compartida-ventana"><span class="no-compartida-texto">` +
+      `Compartida ${conGuion(nota.codigo)}${ultimo ? " · Último cambio: " + ultimo : ""}</span></span>`;
+    linea.hidden = false;
+    // Si el texto no entra, corre despacio de un lado al otro, como la pantallita
+    requestAnimationFrame(() => {
+      const ventana = linea.querySelector(".no-compartida-ventana");
+      const texto = linea.querySelector(".no-compartida-texto");
+      if (!ventana || !texto) return;
+      const sobra = texto.scrollWidth - ventana.clientWidth;
+      texto.classList.toggle("corre", sobra > 0);
+      if (sobra > 0) {
+        texto.style.setProperty("--sobra", `${-sobra}px`);
+        texto.style.setProperty("--duracion", `${(3 + sobra / 30).toFixed(1)}s`);
+      }
+    });
+  }
+
+  // Se fija en la nube si la otra persona cambió la nota abierta.
+  async function revisarNube() {
+    const textoEl = document.getElementById("no-texto");
+    const tituloEl = document.getElementById("no-titulo");
+    if (!abierto || !nota || !nota.codigo || !textoEl || revisando || sinGuardar || subiendo) return;
+    revisando = true;
+    const actual = nota;
+    const remotoAntes = actual.remoto;
+    try {
+      const d = await NUBE.bajar(actual.codigo);
+      // Cualquier subida distinta de la última que conocemos es un cambio de otra persona.
+      // No se compara "más nuevo", porque la compu y el celu pueden tener la hora un poco distinta.
+      if (!d || Math.abs(d.cambiado - (actual.remoto || 0)) < 0.0005) return;
+      if (sinGuardar || subiendo || actual.remoto !== remotoAntes) return;   // mientras tanto escribiste: gana lo tuyo
+      Object.assign(actual, { titulo: d.titulo || "", html: limpiarHtml(d.html), texto: d.texto || "",
+                              remoto: d.cambiado, ultimoNombre: d.nombre || "", ultimoMio: false, modificada: ahora() });
+      guardarTodo();
+      if (nota === actual && document.getElementById("no-texto") === textoEl) {
+        tituloEl.value = actual.titulo;
+        textoEl.innerHTML = actual.html;
+        dibujarLineaCompartida();
+      }
+      anunciar(d.nombre ? `${d.nombre} cambió la nota` : "Nota compartida actualizada");
+    } catch (error) {
+      // Sin internet: se vuelve a probar en la próxima vuelta.
+    } finally {
+      revisando = false;
+    }
+  }
+
+  // Cada 10 segundos con la nota abierta, y también apenas volvés a la app.
+  setInterval(revisarNube, 10000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") setTimeout(revisarNube, 500);
+  });
 
   function textoParaCompartir() {
     const titulo = (document.getElementById("no-titulo") || {}).value || "";

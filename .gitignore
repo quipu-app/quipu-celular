@@ -1,4 +1,4 @@
-﻿# Librerías de Node (se vuelven a instalar con npm install; pesan mucho)
+# Librerías de Node (se vuelven a instalar con npm install; pesan mucho)
 node_modules/
 
 # Configuración propia de los editores
@@ -13,3 +13,5 @@ npm-debug.log*
 Thumbs.db
 desktop.ini
 respaldos/
+publicar/
+aplicar_*.py
