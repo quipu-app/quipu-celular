@@ -7,7 +7,7 @@ window.MODULOS = window.MODULOS || {};
   const PERSONAJES = ["anki", "compa", "luna", "moreira", "pachamama", "remedios"];   // Eric presenta: no se elige
   const TIPOS_TECLA = [["clic", "Clic"], ["suave", "Suave"], ["retro", "Retro"], ["ninguno", "Sin sonido"]];
   const ARCHIVOS_TECLA = { clic: "tecla_clic_v10", suave: "tecla_suave_v10", retro: "tecla_retro_v9" };
-  window.QUIPU_VERSION = "1.2.1";   // subirla en cada versión nueva (y versionName en android/app/build.gradle)
+  window.QUIPU_VERSION = "1.2.2";   // subirla en cada versión nueva (y versionName en android/app/build.gradle)
   const VERSION = "Quipu para celular · versión " + window.QUIPU_VERSION;
 
   const escapar = (t) => String(t ?? "").replace(/[&<>"]/g,
@@ -241,6 +241,7 @@ window.MODULOS = window.MODULOS || {};
     const $ = (id) => document.getElementById(id);
     $("aj-antes").onclick = () => { indice = (indice - 1 + cartas.length) % cartas.length; efecto("carta"); dibujar(); };
     $("aj-despues").onclick = () => { indice = (indice + 1) % cartas.length; efecto("carta"); dibujar(); };
+    $("aj-elegir").onclick = () => elegir(c.id);
     if ($("aj-nueva")) $("aj-nueva").onclick = () => NOVEDADES.abrir();
     $("aj-guardar-nombre").onclick = () => {
       ajustes.nombre = $("aj-nombre").value.trim();
