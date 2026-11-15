@@ -28,6 +28,26 @@ window.SINCRO = (function () {
   let foto = null;            // cómo estaban los datos en la última sincronización
   let cambioDesde = null;     // cuándo se notó un cambio todavía sin subir
   let proxima = Date.now() + 5000;
+  let paso = "";            // en qué parte de la conexión estamos, para explicar un error
+  const CLAVE_ERROR = "quipu.drive_error";
+  // Arma un texto legible con lo que trae cualquier error (los del plugin de Google vienen distintos)
+  const detalle = (e) => {
+    if (!e) return "sin detalle";
+    const partes = [e.code, e.message || e.errorMessage].filter(Boolean);
+    if (partes.length) return partes.join(" · ");
+    try { return JSON.stringify(e); } catch (x) { return String(e); }
+  };
+  // Qué tipo de llave dio Google (sin mostrarla): las de Drive empiezan con ya29
+  const tipoLlave = (t) => !t ? "vacía" : (String(t).startsWith("ya29.") ? "ya29" : String(t).slice(0, 3) + "…");
+  // Si el archivo de Drive trae una barra invertida mal escrita (una barra seguida de algo que no es un
+  // escape válido), la duplica para que se lea como texto común. Las barras bien escritas quedan igual.
+  const repararJson = (texto) => texto.replace(/\\(["\\\/bfnrt]|u[0-9a-fA-F]{4})?/g,
+    (todo, valido) => (valido ? todo : "\\\\"));
+  const CLAVE_REPARADO = "quipu.drive_reparado";
+  let archivoReparado = false;
+  // Si Google no contesta, no esperar para siempre
+  const conLimite = (promesa, segundos) => Promise.race([promesa, new Promise((_, rechazar) =>
+    setTimeout(() => rechazar(new Error(`Google no respondió en ${segundos} segundos`)), segundos * 1000))]);
   let alCambiar = null;       // Ajustes se anota para redibujarse
 
   const avisar = () => { if (alCambiar) alCambiar(); };
@@ -42,14 +62,18 @@ window.SINCRO = (function () {
   async function llave(conectar) {
     const L = Login();
     if (!L) throw new Error("La sincronización funciona en la app del celular");
+    paso = "preparar Google";
     await iniciar();
     if (conectar) {
-      const r = await L.login({ provider: "google", options: { scopes: [PERMISO] } });
+      paso = "elegir cuenta y dar permiso";
+      const r = await conLimite(L.login({ provider: "google", options: { scopes: [PERMISO] } }), 90);
       const t = r && r.result && r.result.accessToken && r.result.accessToken.token;
       if (t) return t;
     }
-    try { await L.refresh({ provider: "google", options: {} }); } catch (error) { /* sigue con la guardada */ }
-    const c = await L.getAuthorizationCode({ provider: "google" });
+    paso = "renovar la sesión";
+    try { await conLimite(L.refresh({ provider: "google", options: {} }), 30); } catch (error) { /* sigue con la guardada */ }
+    paso = "pedir la llave de Drive";
+    const c = await conLimite(L.getAuthorizationCode({ provider: "google" }), 30);
     if (!c || !c.accessToken) throw new Error("sin_llave");
     return c.accessToken;
   }
@@ -57,7 +81,11 @@ window.SINCRO = (function () {
   // --- Drive: buscar, bajar y subir el archivo -------------------------------------------------
   async function pedir(url, opciones, t) {
     const r = await fetch(url, { ...opciones, headers: { ...(opciones.headers || {}), Authorization: `Bearer ${t}` } });
-    if (!r.ok) throw new Error(`Drive respondió ${r.status}`);
+    if (!r.ok) {
+      let cuerpo = "";
+      try { cuerpo = (await r.text()).slice(0, 160); } catch (e) { /* sin texto */ }
+      throw new Error(`Drive respondió ${r.status} ${cuerpo}`);
+    }
     return r;
   }
 
@@ -66,8 +94,18 @@ window.SINCRO = (function () {
     const lista = await (await pedir(`${API}?spaces=appDataFolder&q=${q}&fields=files(id)`, {}, t)).json();
     const id = lista.files && lista.files[0] && lista.files[0].id;
     if (!id) return { archivo: null, id: null };
-    const archivo = await (await pedir(`${API}/${id}?alt=media`, {}, t)).json();
-    return { archivo, id };
+    const texto = await (await pedir(`${API}/${id}?alt=media`, {}, t)).text();
+    archivoReparado = false;
+    try {
+      return { archivo: JSON.parse(texto), id };
+    } catch (error) {
+      const archivo = JSON.parse(repararJson(texto));   // si tampoco así se puede leer, sale el error original
+      archivoReparado = true;
+      const lugar = Number((String(error.message).match(/position (\d+)/) || [])[1] || 0);
+      const hora = new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+      localStorage.setItem(CLAVE_REPARADO, `${hora} · «${texto.slice(Math.max(0, lugar - 40), lugar + 20)}»`);
+      return { archivo, id };
+    }
   }
 
   async function subir(t, datos, id) {
@@ -179,8 +217,19 @@ window.SINCRO = (function () {
 
   // --- Todo junto ------------------------------------------------------------------------------
   async function sincronizarDatos(conectar) {
-    const t = await llave(conectar);
-    const { archivo, id } = await bajar(t);
+    let t = await llave(conectar);
+    paso = `leer tu Drive (llave ${tipoLlave(t)})`;
+    let archivo, id;
+    try {
+      ({ archivo, id } = await bajar(t));
+    } catch (error) {
+      if (!/ 401/.test(String(error && error.message))) throw error;
+      // Drive no aceptó la llave: pedimos otra por el otro camino y probamos una vez más
+      const primera = tipoLlave(t);
+      t = await llave(false);
+      paso = `leer tu Drive (1ª llave ${primera}, 2ª llave ${tipoLlave(t)})`;
+      ({ archivo, id } = await bajar(t));
+    }
     if (archivo && (archivo.formato || 1) > FORMATO) return { estado: "formato_nuevo" };
 
     // El nombre de usuario: gana el que se cambió más recientemente
@@ -198,7 +247,7 @@ window.SINCRO = (function () {
         ...ajustes, nombre: perfilBajado.nombre || "", nombre_cambiado: perfilBajado.nombre_cambiado || 0,
       }));
     }
-    if (hayQueSubir || subirPerfil || !archivo) {
+    if (hayQueSubir || subirPerfil || !archivo || archivoReparado) {
       await subir(t, {
         formato: FORMATO,
         perfil: perfilFinal,
@@ -233,10 +282,14 @@ window.SINCRO = (function () {
         cambioDesde = null;
         proxima = Date.now() + CADA_CUANTO;
         if (!silencioso || r.bajados) anunciar("¡Listo!");
-        if (conectar) decir("¡Listo! Tus datos ya viajan con vos");
+        if (conectar) { decir("¡Listo! Tus datos ya viajan con vos"); localStorage.removeItem(CLAVE_ERROR); }
       }
     } catch (error) {
       console.log("Sincronización: " + (error && error.message ? error.message : error));
+      if (conectar) {
+        const hora = new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+        localStorage.setItem(CLAVE_ERROR, `${hora} · al ${paso}: ${detalle(error)}`);
+      }
       proxima = Date.now() + REINTENTO;
       if (conectar) {
         decir("No pude conectarme con Google");
@@ -295,10 +348,12 @@ window.SINCRO = (function () {
       if (!estado.conectado) {
         return `<p class="tf-etiqueta">Google Drive</p>
           <div class="tf-fila"><button class="tf-boton" id="dr-conectar" ${sincronizando ? "disabled" : ""}>${sincronizando ? "Esperando a Google…" : "Conectar"}</button></div>
-          <p class="tf-mensaje aj-ayuda">Guarda una copia de tus notas y tu agenda en tu Drive, para tenerlas también en la compu.</p>`;
+          <p class="tf-mensaje aj-ayuda">Guarda una copia de tus notas y tu agenda en tu Drive, para tenerlas también en la compu.</p>
+          ${localStorage.getItem(CLAVE_ERROR) ? `<p class="tf-mensaje aj-ayuda">Último error: ${String(localStorage.getItem(CLAVE_ERROR)).replace(/[<>&]/g, "")}</p>` : ""}`;
       }
       return `<p class="tf-etiqueta">Google Drive</p>
         <p class="tf-mensaje aj-ayuda">${cuando()}</p>
+        ${localStorage.getItem(CLAVE_REPARADO) ? `<p class="tf-mensaje aj-ayuda">Reparé el archivo de Drive. Lo que estaba mal: ${String(localStorage.getItem(CLAVE_REPARADO)).replace(/[<>&]/g, "")}</p>` : ""}
         <div class="tf-fila">
           <button class="tf-boton" id="dr-sincro" ${sincronizando ? "disabled" : ""}>${sincronizando ? "Sincronizando…" : "Sincronizar ahora"}</button>
           <button class="tf-boton secundario" id="dr-desconectar">Desconectar</button>
